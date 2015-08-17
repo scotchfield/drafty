@@ -1,0 +1,38 @@
+.drafty a.extend-cancel {
+	display: inline;
+}
+.drafty form.extend {
+	display: none;
+	white-space: nowrap;
+}
+.drafty form.extend, .drafty form.extend input, .drafty form.extend select {
+	font-size: 11px;
+}
+th.actions, td.actions {
+	text-align: center;
+}
+.drafty span.clipboard {
+	cursor: pointer;
+}
+.drafty input.copy {
+	display: none;
+	width: 100%;
+}
+.drafty input.drafty_extend, .drafty input.drafty_delete {
+	display: none;
+}
+.drafty a.extend, .drafty a.delete {
+	cursor: pointer;
+}
+.drafty div.extend-form {
+	display: none;
+}
+table.drafty {
+	width: 100%;
+}
+table.drafty td {
+	text-align: center;
+}
+table.drafty td.left {
+	text-align: left;
+}
