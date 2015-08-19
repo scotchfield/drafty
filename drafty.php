@@ -29,6 +29,7 @@ class Drafty {
 
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( $this, 'save_post_meta' ) );
+		add_filter( 'admin_notices', array( $this, 'admin_notices' ) );
 
 		add_filter( 'posts_results', array( $this, 'posts_results' ) );
 		add_filter( 'the_posts', array( $this, 'the_posts' ) );
@@ -125,6 +126,8 @@ class Drafty {
 			return;
 		}
 
+		echo wp_nonce_field( 'drafty_action' . $post->ID, 'drafty_action' );
+
 		$post_shares = $this->get_visible_post_shared_keys( $post->ID );
 
 		if ( ! empty( $post_shares ) ) {
@@ -198,6 +201,16 @@ class Drafty {
 	 * Extract the updates from $_POST and save in post meta.
 	 */
 	public function save_post_meta( $post_id ) {
+		if ( ! isset( $_POST[ 'drafty_action' ] ) || ! wp_verify_nonce( $_POST[ 'drafty_action' ], 'drafty_action' . $post_id ) ) {
+			set_transient(
+				self::DOMAIN . 'notice',
+				array( 'error', 'Could not update the Drafty settings!' ),
+				180
+			);
+
+			return;
+		}
+
 		if ( isset( $_POST[ 'drafty_create' ] ) ) {
 			$shares = $this->get_shared_keys();
 			$key = wp_generate_password( 8, false );
@@ -210,6 +223,8 @@ class Drafty {
 			);
 
 			$this->set_shared_keys( $shares );
+
+
 		} else if ( isset( $_POST[ 'drafty_delete' ] ) ) {
 			$shares = $this->get_shared_keys();
 
@@ -249,6 +264,15 @@ class Drafty {
 			}
 
 			$this->set_shared_keys( $shares );
+		}
+	}
+
+	public function admin_notices() {
+		$notice = get_transient( self::DOMAIN . 'notice' );
+		delete_transient( self::DOMAIN . 'notice' );
+
+		if ( $notice ) {
+			echo '<div class="' . esc_attr( $notice[ 0 ] ) . '">' . esc_html__( $notice[ 1 ], self::DOMAIN ) . '</div>';
 		}
 	}
 
