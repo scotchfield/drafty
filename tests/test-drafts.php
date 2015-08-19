@@ -62,4 +62,35 @@ class TestDrafty extends WP_UnitTestCase {
 		$this->assertTrue( wp_script_is( 'drafty_script', 'registered' ) );
 	}
 
+	/**
+	 * @covers Drafty::add_admin_pages
+	 */
+	public function test_add_admin_pages() {
+		$this->class->add_admin_pages();
+
+		$this->assertArrayHasKey( Drafty::DOMAIN, $GLOBALS[ 'admin_page_hooks' ] );
+	}
+
+	/**
+	 * @covers Drafty::add_admin_pages
+	 * @covers Drafty::admin_page_styles
+	 */
+	public function test_enqueue_style() {
+		$this->class->add_admin_pages();
+		$this->class->admin_page_styles();
+
+		$this->assertTrue( wp_style_is( 'drafty_style', 'enqueued' ) );
+	}
+
+	/**
+	 * @covers Drafty::add_admin_pages
+	 * @covers Drafty::admin_page_scripts
+	 */
+	public function test_enqueue_script() {
+		$this->class->add_admin_pages();
+		$this->class->admin_page_scripts();
+
+		$this->assertTrue( wp_script_is( 'drafty_script', 'enqueued' ) );
+	}
+
 }
