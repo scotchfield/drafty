@@ -23,25 +23,6 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Drafty::get_shared_keys
-	 */
-	public function test_get_shared_keys_empty() {
-		$this->assertEmpty( $this->class->get_shared_keys() );
-	}
-
-	/**
-	 * @covers Drafty::get_shared_keys
-	 * @covers Drafty::set_shared_keys
-	 */
-	public function test_set_shared_keys_test_array() {
-		$test = array( 'this' => 'that' );
-
-		$this->class->set_shared_keys( $test );
-
-		$this->assertEquals( $test, $this->class->get_shared_keys() );
-	}
-
-	/**
 	 * @covers Drafty::init
 	 * @covers Drafty::admin_page_init
 	 */
@@ -91,6 +72,25 @@ class TestDrafty extends WP_UnitTestCase {
 		$this->class->admin_page_scripts();
 
 		$this->assertTrue( wp_script_is( 'drafty_script', 'enqueued' ) );
+	}
+
+	/**
+	 * @covers Drafty::get_shared_keys
+	 */
+	public function test_get_shared_keys_empty() {
+		$this->assertEmpty( $this->class->get_shared_keys() );
+	}
+
+	/**
+	 * @covers Drafty::get_shared_keys
+	 * @covers Drafty::set_shared_keys
+	 */
+	public function test_set_shared_keys_test_array() {
+		$test = array( 'this' => 'that' );
+
+		$this->class->set_shared_keys( $test );
+
+		$this->assertEquals( $test, $this->class->get_shared_keys() );
 	}
 
 }
