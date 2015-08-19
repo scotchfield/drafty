@@ -41,4 +41,25 @@ class TestDrafty extends WP_UnitTestCase {
 		$this->assertEquals( $test, $this->class->get_shared_keys() );
 	}
 
+	/**
+	 * @covers Drafty::init
+	 * @covers Drafty::admin_page_init
+	 */
+	public function test_init() {
+		$this->class->init();
+
+		$this->assertGreaterThan(
+			0, has_action( 'admin_menu', array( $this->class, 'add_admin_pages' ) )
+		);
+		$this->assertGreaterThan(
+			0, has_action( 'posts_results', array( $this->class, 'posts_results' ) )
+		);
+		$this->assertGreaterThan(
+			0, has_action( 'the_posts', array( $this->class, 'the_posts' ) )
+		);
+
+		$this->assertTrue( wp_style_is( 'drafty_style', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'drafty_script', 'registered' ) );
+	}
+
 }
