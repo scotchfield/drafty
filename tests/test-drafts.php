@@ -10,6 +10,8 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	public function tearDown() {
+		delete_transient( Drafty::DOMAIN . 'notice' );
+
 		unset( $this->class );
 
 		parent::tearDown();
@@ -119,6 +121,32 @@ class TestDrafty extends WP_UnitTestCase {
 		foreach ( $expected as $test => $result ) {
 			$this->assertEquals( $result, $this->class->can_post_status_share( $test ) );
 		}
+	}
+
+	/**
+	 * @covers Drafty::set_notice
+	 * @covers Drafty::flush_notice
+	 */
+	public function test_set_and_flush_notice() {
+		$notice = array( 'test', 'drafty' );
+
+		$this->class->set_notice( $notice );
+
+		$this->assertEquals( $notice, $this->class->flush_notice() );
+	}
+
+	/**
+	 * @covers Drafty::save_post_meta
+	 * @covers Drafty::set_notice
+	 * @covers Drafty::flush_notice
+	 */
+	public function test_save_post_meta_fail_bad_nonce() {
+		$this->class->save_post_meta( -1 );
+
+		$notice = $this->class->flush_notice();
+
+		$this->assertNotEmpty( $notice );
+		$this->assertEquals( $notice[ 0 ], 'error' );
 	}
 
 }

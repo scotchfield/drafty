@@ -64,6 +64,21 @@ class Drafty {
 		wp_enqueue_script( 'drafty_script' );
 	}
 
+	public function get_transient_key() {
+		return Drafty::DOMAIN . 'notice' . get_current_user_id();
+	}
+
+	public function flush_notice() {
+		$notice = get_transient( $this->get_transient_key() );
+		delete_transient( $this->get_transient_key() );
+
+		return $notice;
+	}
+
+	public function set_notice( $notice ) {
+		set_transient( $this->get_transient_key(), $notice, 180 );
+	}
+
 	public function set_shared_keys( $keys ) {
 		update_option( self::DOMAIN, $keys );
 	}
@@ -202,11 +217,7 @@ class Drafty {
 	 */
 	public function save_post_meta( $post_id ) {
 		if ( ! isset( $_POST[ 'drafty_action' ] ) || ! wp_verify_nonce( $_POST[ 'drafty_action' ], 'drafty_action' . $post_id ) ) {
-			set_transient(
-				self::DOMAIN . 'notice',
-				array( 'error', 'Could not update the Drafty settings!' ),
-				180
-			);
+			$this->set_notice( array( 'error', 'Could not update the Drafty settings!' ) );
 
 			return;
 		}
@@ -268,8 +279,7 @@ class Drafty {
 	}
 
 	public function admin_notices() {
-		$notice = get_transient( self::DOMAIN . 'notice' );
-		delete_transient( self::DOMAIN . 'notice' );
+		$notice = $this->flush_notice();
 
 		if ( $notice ) {
 			echo '<div class="' . esc_attr( $notice[ 0 ] ) . '">' . esc_html__( $notice[ 1 ], self::DOMAIN ) . '</div>';
