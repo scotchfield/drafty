@@ -110,7 +110,7 @@ class Drafty {
 		if ( $this->can_post_status_share( $post->post_status ) ) {
 			add_meta_box(
 				self::DOMAIN . 'meta-box',
-				'Share a Drafty Draft',
+				__( 'Share a Drafty Draft', self::DOMAIN ),
 				array( $this, 'generate_meta_box' ),
 				'post',
 				'normal'
@@ -134,9 +134,9 @@ class Drafty {
 ?>
 <table class="drafty">
 	<tr>
-		<th>Link</th>
-		<th>Expires After</th>
-		<th colspan="2">Actions</th>
+		<th><?php _e( 'Link', self::DOMAIN ); ?></th>
+		<th><?php _e( 'Expires After', self::DOMAIN ); ?></th>
+		<th colspan="2"><?php _e( 'Actions', self::DOMAIN ); ?></th>
 	</tr>
 <?php
 			foreach ( $post_shares as $key => $share ) {
@@ -162,11 +162,11 @@ class Drafty {
 					<?php esc_html_e( 'Cancel', self::DOMAIN ); ?>
 				</a>
 			</div>
-			<a class="extend" id="extend-<?php echo esc_attr( $key ); ?>" data-key="<?php echo esc_attr( $key ); ?>">Extend</a>
+			<a class="extend" id="extend-<?php echo esc_attr( $key ); ?>" data-key="<?php echo esc_attr( $key ); ?>"><?php _e( 'Extend', self::DOMAIN ); ?></a>
 		</td>
 		<td>
 			<input id="delete-<?php echo esc_attr( $key ); ?>" type="submit" name="drafty_delete" class="drafty_delete" value="<?php echo esc_attr( $key ); ?>" />
-			<a class="delete" data-key="<?php echo esc_attr( $key ); ?>">Delete</a>
+			<a class="delete" data-key="<?php echo esc_attr( $key ); ?>"><?php _e( 'Delete', self::DOMAIN ); ?></a>
 		</td>
 	</tr>
 <?php
@@ -340,7 +340,7 @@ class Drafty {
 
 	public function admin_page() {
 ?>
-<h1>Drafty</h1>
+<h1><?php _e( 'Drafty', self::DOMAIN ); ?></h1>
 <?php
 	}
 
