@@ -93,4 +93,32 @@ class TestDrafty extends WP_UnitTestCase {
 		$this->assertEquals( $test, $this->class->get_shared_keys() );
 	}
 
+	/**
+	 * @covers Drafty::get_visible_post_shared_keys
+	 */
+	public function test_get_visible_post_shared_keys_empty_invalid_post() {
+		$this->assertEmpty( $this->class->get_visible_post_shared_keys( -1 ) );
+	}
+
+	/**
+	 * @covers Drafty::can_post_status_share
+	 */
+	public function test_can_post_status_share() {
+		$expected = array(
+			'draft' => true,
+			'future' => true,
+			'pending' => true,
+
+			'publish' => false,
+			'private' => false,
+			'trash' => false,
+			'auto-draft' => false,
+			'inherit' => false,
+		);
+
+		foreach ( $expected as $test => $result ) {
+			$this->assertEquals( $result, $this->class->can_post_status_share( $test ) );
+		}
+	}
+
 }
