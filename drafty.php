@@ -142,7 +142,7 @@ class Drafty {
 	 */
 	public function generate_meta_box( $post ) {
 		if ( ! isset( $post->ID ) ) {
-			return;
+			return false;
 		}
 
 		echo wp_nonce_field( 'drafty_action' . $post->ID, 'drafty_action' );

@@ -189,4 +189,22 @@ class TestDrafty extends WP_UnitTestCase {
 		unset( $GLOBALS[ 'post' ] );
 	}
 
+	/**
+	 * @covers Drafty::generate_meta_box
+	 */
+	public function test_generate_meta_box_empty() {
+		$this->assertFalse( $this->class->generate_meta_box( array() ) );
+	}
+
+	/**
+	 * @covers Drafty::generate_meta_box
+	 */
+	public function test_generate_meta_box_simple_draft() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		ob_start();
+		$this->assertNull( $this->class->generate_meta_box( get_post( $post_id ) ) );
+		ob_end_clean();
+	}
+
 }
