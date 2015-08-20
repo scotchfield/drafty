@@ -119,7 +119,7 @@ class Drafty {
 		$post = get_post();
 
 		if ( empty( $post ) || ! isset( $post->post_status ) ) {
-			return;
+			return false;
 		}
 
 		if ( $this->can_post_status_share( $post->post_status ) ) {
@@ -130,7 +130,11 @@ class Drafty {
 				'post',
 				'normal'
 			);
+
+			return true;
 		}
+
+		return false;
 	}
 
 	/**

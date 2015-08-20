@@ -124,6 +124,13 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers Drafty::get_transient_key
+	 */
+	public function test_get_transient_key() {
+		$this->assertNotEmpty( $this->class->get_transient_key() );
+	}
+
+	/**
 	 * @covers Drafty::set_notice
 	 * @covers Drafty::flush_notice
 	 */
@@ -147,6 +154,39 @@ class TestDrafty extends WP_UnitTestCase {
 
 		$this->assertNotEmpty( $notice );
 		$this->assertEquals( $notice[ 0 ], 'error' );
+	}
+
+	/**
+	 * @covers Drafty::add_meta_boxes
+	 */
+	public function test_add_meta_boxes_empty() {
+		$this->assertFalse( $this->class->add_meta_boxes() );
+	}
+
+	/**
+	 * @covers Drafty::add_meta_boxes
+	 */
+	public function test_add_meta_boxes_has_post_not_shareable() {
+		$post_id = $this->factory->post->create();
+
+		$GLOBALS[ 'post' ] = get_post( $post_id );
+
+		$this->assertFalse( $this->class->add_meta_boxes() );
+
+		unset( $GLOBALS[ 'post' ] );
+	}
+
+	/**
+	 * @covers Drafty::add_meta_boxes
+	 */
+	public function test_add_meta_boxes_has_post_shareable() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		$GLOBALS[ 'post' ] = get_post( $post_id );
+
+		$this->assertTrue( $this->class->add_meta_boxes() );
+
+		unset( $GLOBALS[ 'post' ] );
 	}
 
 }
