@@ -207,4 +207,40 @@ class TestDrafty extends WP_UnitTestCase {
 		ob_end_clean();
 	}
 
+	/**
+	 * @covers Drafty::save_post_meta
+	 */
+	public function test_save_post_meta_create_bad_post() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
+		$_POST[ 'drafty_create' ] = true;
+
+		$this->assertNull( $this->class->save_post_meta( $post_id ) );
+	}
+
+	/**
+	 * @covers Drafty::save_post_meta
+	 */
+	public function test_save_post_meta_delete_bad_post() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
+		$_POST[ 'drafty_delete' ] = true;
+
+		$this->assertNull( $this->class->save_post_meta( $post_id ) );
+	}
+
+	/**
+	 * @covers Drafty::save_post_meta
+	 */
+	public function test_save_post_meta_extend_bad_post() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
+		$_POST[ 'drafty_extend' ] = true;
+
+		$this->assertNull( $this->class->save_post_meta( $post_id ) );
+	}
+
 }

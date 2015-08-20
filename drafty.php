@@ -226,7 +226,10 @@ class Drafty {
 			return;
 		}
 
-		if ( isset( $_POST[ 'drafty_create' ] ) ) {
+		if ( isset( $_POST[ 'drafty_create' ] ) &&
+				isset( $_POST[ 'drafty_amount' ] ) &&
+				isset( $_POST[ 'drafty_measure' ] ) ) {
+
 			$shares = $this->get_shared_keys();
 			$key = wp_generate_password( 8, false );
 
@@ -238,7 +241,6 @@ class Drafty {
 			);
 
 			$this->set_shared_keys( $shares );
-
 
 		} else if ( isset( $_POST[ 'drafty_delete' ] ) ) {
 			$shares = $this->get_shared_keys();
