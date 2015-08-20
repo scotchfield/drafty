@@ -8,6 +8,8 @@ Version: 0.1
 Author URI: http://scootah.com
 */
 
+require_once 'class.drafty-data.php';
+
 class Drafty {
 
 	/**
@@ -20,8 +22,15 @@ class Drafty {
 	 */
 	private $shared_posts = array();
 
+	/**
+	 * Keep data separate from the main class.
+	 */
+	public $drafty_share;
+
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
+
+		$this->drafty_share = new DraftyData();
 	}
 
 	public function init() {
@@ -79,34 +88,6 @@ class Drafty {
 		set_transient( $this->get_transient_key(), $notice, 180 );
 	}
 
-	public function set_shared_keys( $keys ) {
-		update_option( self::DOMAIN, $keys );
-	}
-
-	public function get_shared_keys() {
-		$shares = get_option( self::DOMAIN );
-
-		return is_array( $shares ) ? $shares : array();
-	}
-
-	public function get_visible_post_shared_keys( $post_id ) {
-		$user_id = get_current_user_id();
-		$admin = current_user_can( 'manage_options' );
-
-		$keys = array();
-
-		foreach ( $this->get_shared_keys() as $key => $share ) {
-			if ( $share[ 'user_id' ] != $user_id && ! $admin ) {
-				continue;
-			}
-
-			if ( $share[ 'post_id' ] == $post_id ) {
-				$keys[ $key ] = $share;
-			}
-		}
-
-		return $keys;
-	}
 
 	public function can_post_status_share( $post_status ) {
 		return in_array( $post_status, array( 'draft', 'future', 'pending' ) );
@@ -147,7 +128,7 @@ class Drafty {
 
 		echo wp_nonce_field( 'drafty_action' . $post->ID, 'drafty_action' );
 
-		$post_shares = $this->get_visible_post_shared_keys( $post->ID );
+		$post_shares = $this->drafty_share->get_visible_post_shared_keys( $post->ID );
 
 		if ( ! empty( $post_shares ) ) {
 ?>
@@ -235,70 +216,27 @@ class Drafty {
 				return false;
 			}
 
-			$shares = $this->get_shared_keys();
-			$key = wp_generate_password( 8, false );
+			$time = $this->calculate_seconds( intval( $_POST[ 'drafty_amount' ] ), $_POST[ 'drafty_measure' ] );
 
-			$shares[$key] = array(
-				'user_id' => get_current_user_id(),
-				'post_id' => $post_id,
-				'expires' => time() + $this->calculate_seconds(
-					intval( $_POST[ 'drafty_amount' ] ), $_POST[ 'drafty_measure' ] ),
-			);
-
-			$this->set_shared_keys( $shares );
+			$this->drafty_share->add_share( $post_id, $time );
 
 			return true;
 
 		} else if ( isset( $_POST[ 'drafty_delete' ] ) ) {
 
-			$return = false;
-			$shares = $this->get_shared_keys();
+			return $this->drafty_share->delete_share( $_POST[ 'drafty_delete' ] );
 
-			$user_id = get_current_user_id();
-			$admin = current_user_can( 'manage_options' );
+		} else if ( isset( $_POST[ 'drafty_extend' ] ) &&
+				isset( $_POST[ 'drafty_amount' ] ) &&
+				isset( $_POST[ 'drafty_measure' ] ) ) {
 
-			foreach ( $shares as $key => $share ) {
-				$user_can = $admin || $share[ 'user_id' ] == $user_id;
+			$key = $_POST[ 'drafty_extend' ];
+			$amount = $_POST[ 'drafty_amount' . $key ];
+			$measure = $_POST[ 'drafty_measure' . $key ];
 
-				if ( $user_can && $key == $_POST[ 'drafty_delete' ] ) {
-					unset( $shares[ $key ] );
-					$return = true;
-				}
-			}
+			$time = $this->calculate_seconds( $amount, $measure );
 
-			$this->set_shared_keys( $shares );
-
-			return $return;
-
-		} else if ( isset( $_POST[ 'drafty_extend' ] ) ) {
-
-			$return = false;
-			$shares = $this->get_shared_keys();
-
-			$user_id = get_current_user_id();
-			$admin = current_user_can( 'manage_options' );
-
-			foreach ( $shares as $key => $share ) {
-				$user_can = $admin || $share[ 'user_id' ] == $user_id;
-
-				if ( $user_can && $key == $_POST[ 'drafty_extend' ] ) {
-					$now = time();
-
-					if ( $share[ 'expires' ] < $now ) {
-						$share[ 'expires' ] = $now;
-					}
-
-					$amount = $_POST[ 'drafty_amount' . $key ];
-					$measure = $_POST[ 'drafty_measure' . $key ];
-
-					$shares[ $key ][ 'expires' ] += $this->calculate_seconds( $amount, $measure );
-					$return = true;
-				}
-			}
-
-			$this->set_shared_keys( $shares );
-
-			return $return;
+			return $this->drafty_share->extend_share( $key, $time );
 
 		}
 
@@ -343,7 +281,7 @@ class Drafty {
 			return false;
 		}
 
-		$shares = $this->get_shared_keys();
+		$shares = $this->drafty_share->get_shared_keys();
 
 		foreach ( $shares as $key => $share ) {
 			if ( $key == $_GET[ 'drafty' ] && $share[ 'post_id' ] == $post_id ) {

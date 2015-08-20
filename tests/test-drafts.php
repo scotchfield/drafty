@@ -6,7 +6,7 @@ class TestDrafty extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->class = new Drafty();
-		$this->class->set_shared_keys( null );
+		$this->class->drafty_share->set_shared_keys( null );
 	}
 
 	public function tearDown() {
@@ -82,7 +82,7 @@ class TestDrafty extends WP_UnitTestCase {
 	 * @covers Drafty::get_shared_keys
 	 */
 	public function test_get_shared_keys_empty() {
-		$this->assertEmpty( $this->class->get_shared_keys() );
+		$this->assertEmpty( $this->class->drafty_share->get_shared_keys() );
 	}
 
 	/**
@@ -92,16 +92,16 @@ class TestDrafty extends WP_UnitTestCase {
 	public function test_set_shared_keys_test_array() {
 		$test = array( 'this' => 'that' );
 
-		$this->class->set_shared_keys( $test );
+		$this->class->drafty_share->set_shared_keys( $test );
 
-		$this->assertEquals( $test, $this->class->get_shared_keys() );
+		$this->assertEquals( $test, $this->class->drafty_share->get_shared_keys() );
 	}
 
 	/**
 	 * @covers Drafty::get_visible_post_shared_keys
 	 */
 	public function test_get_visible_post_shared_keys_empty_invalid_post() {
-		$this->assertEmpty( $this->class->get_visible_post_shared_keys( -1 ) );
+		$this->assertEmpty( $this->class->drafty_share->get_visible_post_shared_keys( -1 ) );
 	}
 
 	/**
