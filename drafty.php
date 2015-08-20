@@ -223,12 +223,17 @@ class Drafty {
 		if ( ! isset( $_POST[ 'drafty_action' ] ) || ! wp_verify_nonce( $_POST[ 'drafty_action' ], 'drafty_action' . $post_id ) ) {
 			$this->set_notice( array( 'error', 'Could not update the Drafty settings!' ) );
 
-			return;
+			return false;
 		}
 
 		if ( isset( $_POST[ 'drafty_create' ] ) &&
 				isset( $_POST[ 'drafty_amount' ] ) &&
 				isset( $_POST[ 'drafty_measure' ] ) ) {
+
+			$post = get_post( $post_id );
+			if ( ! $this->can_post_status_share( $post->post_status ) ) {
+				return false;
+			}
 
 			$shares = $this->get_shared_keys();
 			$key = wp_generate_password( 8, false );
@@ -242,7 +247,11 @@ class Drafty {
 
 			$this->set_shared_keys( $shares );
 
+			return true;
+
 		} else if ( isset( $_POST[ 'drafty_delete' ] ) ) {
+
+			$return = false;
 			$shares = $this->get_shared_keys();
 
 			$user_id = get_current_user_id();
@@ -253,11 +262,17 @@ class Drafty {
 
 				if ( $user_can && $key == $_POST[ 'drafty_delete' ] ) {
 					unset( $shares[ $key ] );
+					$return = true;
 				}
 			}
 
 			$this->set_shared_keys( $shares );
+
+			return $return;
+
 		} else if ( isset( $_POST[ 'drafty_extend' ] ) ) {
+
+			$return = false;
 			$shares = $this->get_shared_keys();
 
 			$user_id = get_current_user_id();
@@ -277,11 +292,17 @@ class Drafty {
 					$measure = $_POST[ 'drafty_measure' . $key ];
 
 					$shares[ $key ][ 'expires' ] += $this->calculate_seconds( $amount, $measure );
+					$return = true;
 				}
 			}
 
 			$this->set_shared_keys( $shares );
+
+			return $return;
+
 		}
+
+		return false;
 	}
 
 	public function admin_notices() {

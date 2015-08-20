@@ -14,6 +14,8 @@ class TestDrafty extends WP_UnitTestCase {
 
 		unset( $this->class );
 
+		unset( $_POST );
+
 		parent::tearDown();
 	}
 
@@ -216,7 +218,35 @@ class TestDrafty extends WP_UnitTestCase {
 		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
 		$_POST[ 'drafty_create' ] = true;
 
-		$this->assertNull( $this->class->save_post_meta( $post_id ) );
+		$this->assertFalse( $this->class->save_post_meta( $post_id ) );
+	}
+
+	/**
+	 * @covers Drafty::save_post_meta
+	 */
+	public function test_save_post_meta_create_invalid_post_status() {
+		$post_id = $this->factory->post->create();
+
+		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
+		$_POST[ 'drafty_create' ] = true;
+		$_POST[ 'drafty_amount' ] = 100;
+		$_POST[ 'drafty_measure' ] = 's';
+
+		$this->assertFalse( $this->class->save_post_meta( $post_id ) );
+	}
+
+	/**
+	 * @covers Drafty::save_post_meta
+	 */
+	public function test_save_post_meta_create_valid_post_status() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
+		$_POST[ 'drafty_create' ] = true;
+		$_POST[ 'drafty_amount' ] = 100;
+		$_POST[ 'drafty_measure' ] = 's';
+
+		$this->assertTrue( $this->class->save_post_meta( $post_id ) );
 	}
 
 	/**
@@ -228,7 +258,7 @@ class TestDrafty extends WP_UnitTestCase {
 		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
 		$_POST[ 'drafty_delete' ] = true;
 
-		$this->assertNull( $this->class->save_post_meta( $post_id ) );
+		$this->assertFalse( $this->class->save_post_meta( $post_id ) );
 	}
 
 	/**
@@ -240,7 +270,7 @@ class TestDrafty extends WP_UnitTestCase {
 		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
 		$_POST[ 'drafty_extend' ] = true;
 
-		$this->assertNull( $this->class->save_post_meta( $post_id ) );
+		$this->assertFalse( $this->class->save_post_meta( $post_id ) );
 	}
 
 }
