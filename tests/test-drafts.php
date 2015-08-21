@@ -248,6 +248,36 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers Drafty::calculate_seconds
+	 */
+	public function test_calculate_seconds() {
+		$this->assertEquals( 1, $this->class->calculate_seconds( 1, 's' ) );
+		$this->assertEquals( 60, $this->class->calculate_seconds( 1, 'm' ) );
+		$this->assertEquals( 60 * 60, $this->class->calculate_seconds( 1, 'h' ) );
+		$this->assertEquals( 60 * 60 * 24, $this->class->calculate_seconds( 1, 'd' ) );
+
+		$this->assertEquals( 10 * 1, $this->class->calculate_seconds( 10, 's' ) );
+		$this->assertEquals( 10 * 60, $this->class->calculate_seconds( 10, 'm' ) );
+		$this->assertEquals( 10 * 60 * 60, $this->class->calculate_seconds( 10, 'h' ) );
+		$this->assertEquals( 10 * 60 * 60 * 24, $this->class->calculate_seconds( 10, 'd' ) );
+	}
+
+	/**
+	 * @covers Drafty::get_time_difference_string
+	 */
+	public function test_get_time_difference_string() {
+		$this->assertEquals(
+			__( 'Expired.', Drafty::DOMAIN ),
+			$this->class->get_time_difference_string( 0 )
+		);
+
+		$this->assertNotEquals(
+			__( 'Expired.', Drafty::DOMAIN ),
+			$this->class->get_time_difference_string( time() + 100 )
+		);
+	}
+
+	/**
 	 * @covers Drafty::can_view
 	 */
 	public function test_can_view_false_no_get_key() {
