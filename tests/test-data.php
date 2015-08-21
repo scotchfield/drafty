@@ -67,4 +67,36 @@ class TestDraftyData extends WP_UnitTestCase {
 		$this->assertTrue( $this->class->share_exists( $post_id, $key ) );
 	}
 
+	/**
+	 * @covers DraftyData::add_share
+	 * @covers DraftyData::get_visible_post_shared_keys
+	 */
+	public function test_add_share_and_get_visible_post_shared_keys() {
+		$user_id = 1;
+		$post_id = 2;
+		$time = 100;
+
+		$key = $this->class->add_share( $user_id, $post_id, $time );
+
+		$shares = $this->class->get_visible_post_shared_keys( $user_id, $post_id );
+
+		$this->assertCount( 1, $shares );
+		$this->assertEquals( $user_id, $shares[ $key ][ 'user_id' ] );
+		$this->assertEquals( $post_id, $shares[ $key ][ 'post_id' ] );
+	}
+
+	/**
+	 * @covers DraftyData::add_share
+	 * @covers DraftyData::get_visible_post_shared_keys
+	 */
+	public function test_add_share_and_get_visible_post_shared_keys_invisible() {
+		$user_id = 1;
+		$post_id = 2;
+		$time = 100;
+
+		$key = $this->class->add_share( $user_id, $post_id, $time );
+
+		$this->assertEmpty( $this->class->get_visible_post_shared_keys( $user_id + 1, $post_id ) );
+	}
+
 }
