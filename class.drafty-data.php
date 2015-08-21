@@ -39,7 +39,7 @@ class DraftyData {
 		$shares = $this->get_shared_keys();
 
 		foreach ( $shares as $key => $share ) {
-			if ( $key == $_GET[ 'drafty' ] && $share[ 'post_id' ] == $post_id ) {
+			if ( $key == $share_key && $share[ 'post_id' ] == $post_id ) {
 				return true;
 			}
 		}
@@ -58,6 +58,8 @@ class DraftyData {
 		);
 
 		$this->set_shared_keys( $shares );
+
+		return $key;
 	}
 
 	public function delete_share( $user_id, $delete_key ) {
