@@ -100,36 +100,11 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers Drafty::get_transient_key
-	 */
-	public function test_get_transient_key() {
-		$this->assertNotEmpty( $this->class->get_transient_key() );
-	}
-
-	/**
-	 * @covers Drafty::set_notice
-	 * @covers Drafty::flush_notice
-	 */
-	public function test_set_and_flush_notice() {
-		$notice = array( 'test', 'drafty' );
-
-		$this->class->set_notice( $notice );
-
-		$this->assertEquals( $notice, $this->class->flush_notice() );
-	}
-
-	/**
 	 * @covers Drafty::save_post_meta
-	 * @covers Drafty::set_notice
-	 * @covers Drafty::flush_notice
 	 */
 	public function test_save_post_meta_fail_bad_nonce() {
-		$this->class->save_post_meta( -1 );
-
-		$notice = $this->class->flush_notice();
-
-		$this->assertNotEmpty( $notice );
-		$this->assertEquals( $notice[ 0 ], 'error' );
+		$this->assertFalse( $this->class->save_post_meta( -1 ) );
+		$this->assertNotNull( $this->class->notify );
 	}
 
 	/**

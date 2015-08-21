@@ -23,6 +23,11 @@ class Drafty {
 	private $shared_posts = array();
 
 	/**
+	 * Pass an argument in the post redirect to notify the user of an update or error.
+	 */
+	public $notify;
+
+	/**
 	 * Keep data separate from the main class.
 	 */
 	public $drafty_share;
@@ -42,6 +47,8 @@ class Drafty {
 
 		add_filter( 'posts_results', array( $this, 'posts_results' ) );
 		add_filter( 'the_posts', array( $this, 'the_posts' ) );
+
+		add_filter( 'redirect_post_location', array( $this, 'notify_redirect' ) );
 
 		$this->admin_page_init();
 	}
@@ -73,21 +80,13 @@ class Drafty {
 		wp_enqueue_script( 'drafty_script' );
 	}
 
-	public function get_transient_key() {
-		return Drafty::DOMAIN . 'notice' . get_current_user_id();
+	public function notify_redirect( $location, $post_id ) {
+		if ( isset( $this->notify ) ) {
+			return add_query_arg( 'drafty_notify', $this->notify, $location );
+		}
+
+		return $location;
 	}
-
-	public function flush_notice() {
-		$notice = get_transient( $this->get_transient_key() );
-		delete_transient( $this->get_transient_key() );
-
-		return $notice;
-	}
-
-	public function set_notice( $notice ) {
-		set_transient( $this->get_transient_key(), $notice, 180 );
-	}
-
 
 	public function can_post_status_share( $post_status ) {
 		return in_array( $post_status, array( 'draft', 'future', 'pending' ) );
@@ -206,7 +205,7 @@ class Drafty {
 	 */
 	public function save_post_meta( $post_id ) {
 		if ( ! isset( $_POST[ 'drafty_action' ] ) || ! wp_verify_nonce( $_POST[ 'drafty_action' ], 'drafty_action' . $post_id ) ) {
-			$this->set_notice( array( 'error', 'Could not update the Drafty settings!' ) );
+			$this->notify = 7;
 
 			return false;
 		}
@@ -217,17 +216,29 @@ class Drafty {
 
 			$post = get_post( $post_id );
 			if ( ! $this->can_post_status_share( $post->post_status ) ) {
+				$this->notify = 2;
+
 				return false;
 			}
 
 			$user_id = get_current_user_id();
 			$time = $this->calculate_seconds( intval( $_POST[ 'drafty_amount' ] ), $_POST[ 'drafty_measure' ] );
 
+			$this->notify = 1;
+
 			return $this->drafty_share->add_share( $user_id, $post_id, $time );
 
 		} else if ( isset( $_POST[ 'drafty_delete' ] ) ) {
 
-			return $this->drafty_share->delete_share( $this->get_user_id_or_admin(), $_POST[ 'drafty_delete' ] );
+			$result = $this->drafty_share->delete_share( $this->get_user_id_or_admin(), $_POST[ 'drafty_delete' ] );
+
+			if ( $result ) {
+				$this->notify = 3;
+			} else {
+				$this->notify = 4;
+			}
+
+			return $result;
 
 		} else if ( isset( $_POST[ 'drafty_extend' ] ) &&
 				isset( $_POST[ 'drafty_amount' ] ) &&
@@ -239,7 +250,15 @@ class Drafty {
 
 			$time = $this->calculate_seconds( $amount, $measure );
 
-			return $this->drafty_share->extend_share( $this->get_user_id_or_admin(), $key, $time );
+			$result = $this->drafty_share->extend_share( $this->get_user_id_or_admin(), $key, $time );
+
+			if ( $result ) {
+				$this->notify = 5;
+			} else {
+				$this->notify = 6;
+			}
+
+			return $result;
 
 		}
 
@@ -247,10 +266,25 @@ class Drafty {
 	}
 
 	public function admin_notices() {
-		$notice = $this->flush_notice();
+		if ( ! isset( $_GET[ 'drafty_notify' ] ) ) {
+			return;
+		}
 
-		if ( $notice ) {
-			echo '<div class="' . esc_attr( $notice[ 0 ] ) . '">' . esc_html__( $notice[ 1 ], self::DOMAIN ) . '</div>';
+		$messages = array(
+			1 => array( 'updated', __( 'Your draft was created!', self::DOMAIN ) ),
+			2 => array( 'error', __( 'Your draft could not be created!', self::DOMAIN ) ),
+			3 => array( 'updated', __( 'Your draft was deleted!', self::DOMAIN ) ),
+			4 => array( 'error', __( 'Your draft could not be deleted!', self::DOMAIN ) ),
+			5 => array( 'updated', __( 'Your draft was extended!', self::DOMAIN ) ),
+			6 => array( 'error', __( 'Your draft could not be extended!', self::DOMAIN ) ),
+			7 => array( 'error', __( 'Could not update the Drafty settings!', self::DOMAIN ) ),
+		);
+
+		$notice = intval( $_GET[ 'drafty_notify' ] );
+
+		if ( isset( $messages[ $notice ] ) ) {
+			$message = $messages[ $notice ];
+			echo '<div class="' . esc_attr( $message[ 0 ] ) . '">' . esc_html__( $message[ 1 ] ) . '</div>';
 		}
 	}
 
