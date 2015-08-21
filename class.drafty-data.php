@@ -36,12 +36,12 @@ class DraftyData {
 		return $keys;
 	}
 
-	public function add_share( $post_id, $time ) {
+	public function add_share( $user_id, $post_id, $time ) {
 		$shares = $this->get_shared_keys();
 		$key = wp_generate_password( 8, false );
 
 		$shares[$key] = array(
-			'user_id' => get_current_user_id(),
+			'user_id' => $user_id,
 			'post_id' => $post_id,
 			'expires' => time() + $time,
 		);
@@ -49,15 +49,12 @@ class DraftyData {
 		$this->set_shared_keys( $shares );
 	}
 
-	public function delete_share( $delete_key ) {
+	public function delete_share( $user_id, $delete_key ) {
 		$return = false;
 		$shares = $this->get_shared_keys();
 
-		$user_id = get_current_user_id();
-		$admin = current_user_can( 'manage_options' );
-
 		foreach ( $shares as $key => $share ) {
-			$user_can = $admin || $share[ 'user_id' ] == $user_id;
+			$user_can = in_array( $user_id, array( -1, $share[ 'user_id' ] ) );
 
 			if ( $user_can && $key == $delete_key ) {
 				unset( $shares[ $key ] );
@@ -70,15 +67,12 @@ class DraftyData {
 		return $return;
 	}
 
-	public function extend_share( $extend_key, $time ) {
+	public function extend_share( $user_id, $extend_key, $time ) {
 		$return = false;
 		$shares = $this->get_shared_keys();
 
-		$user_id = get_current_user_id();
-		$admin = current_user_can( 'manage_options' );
-
 		foreach ( $shares as $key => $share ) {
-			$user_can = $admin || $share[ 'user_id' ] == $user_id;
+			$user_can = in_array( $user_id, array( -1, $share[ 'user_id' ] ) );
 
 			if ( $user_can && $key == $extend_key ) {
 				$now = time();

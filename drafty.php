@@ -216,15 +216,18 @@ class Drafty {
 				return false;
 			}
 
+			$user_id = get_current_user_id();
 			$time = $this->calculate_seconds( intval( $_POST[ 'drafty_amount' ] ), $_POST[ 'drafty_measure' ] );
 
-			$this->drafty_share->add_share( $post_id, $time );
+			$this->drafty_share->add_share( $user_id, $post_id, $time );
 
 			return true;
 
 		} else if ( isset( $_POST[ 'drafty_delete' ] ) ) {
 
-			return $this->drafty_share->delete_share( $_POST[ 'drafty_delete' ] );
+			$user_id = current_user_can( 'edit_posts' ) ? -1 : get_current_user_id();
+
+			return $this->drafty_share->delete_share( $user_id, $_POST[ 'drafty_delete' ] );
 
 		} else if ( isset( $_POST[ 'drafty_extend' ] ) &&
 				isset( $_POST[ 'drafty_amount' ] ) &&
@@ -236,7 +239,9 @@ class Drafty {
 
 			$time = $this->calculate_seconds( $amount, $measure );
 
-			return $this->drafty_share->extend_share( $key, $time );
+			$user_id = current_user_can( 'edit_posts' ) ? -1 : get_current_user_id();
+
+			return $this->drafty_share->extend_share( $user_id, $key, $time );
 
 		}
 
