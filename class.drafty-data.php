@@ -17,14 +17,13 @@ class DraftyData {
 		return is_array( $shares ) ? $shares : array();
 	}
 
-	public function get_visible_post_shared_keys( $post_id ) {
-		$user_id = get_current_user_id();
-		$admin = current_user_can( 'manage_options' );
-
+	public function get_visible_post_shared_keys( $user_id, $post_id ) {
 		$keys = array();
 
 		foreach ( $this->get_shared_keys() as $key => $share ) {
-			if ( $share[ 'user_id' ] != $user_id && ! $admin ) {
+			$user_can = in_array( $user_id, array( -1, $share[ 'user_id' ] ) );
+
+			if ( ! $user_can ) {
 				continue;
 			}
 
@@ -34,6 +33,18 @@ class DraftyData {
 		}
 
 		return $keys;
+	}
+
+	public function share_exists( $post_id, $share_key ) {
+		$shares = $this->get_shared_keys();
+
+		foreach ( $shares as $key => $share ) {
+			if ( $key == $_GET[ 'drafty' ] && $share[ 'post_id' ] == $post_id ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public function add_share( $user_id, $post_id, $time ) {
