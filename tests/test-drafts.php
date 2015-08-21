@@ -220,7 +220,7 @@ class TestDrafty extends WP_UnitTestCase {
 		$_POST[ 'drafty_amount' ] = 100;
 		$_POST[ 'drafty_measure' ] = 's';
 
-		$this->assertTrue( $this->class->save_post_meta( $post_id ) );
+		$this->assertNotFalse( $this->class->save_post_meta( $post_id ) );
 	}
 
 	/**
@@ -245,6 +245,55 @@ class TestDrafty extends WP_UnitTestCase {
 		$_POST[ 'drafty_extend' ] = true;
 
 		$this->assertFalse( $this->class->save_post_meta( $post_id ) );
+	}
+
+	/**
+	 * @covers Drafty::can_view
+	 */
+	public function test_can_view_false_no_get_key() {
+		$this->assertFalse( $this->class->can_view( 1 ) );
+	}
+
+	/**
+	 * @covers Drafty::can_view
+	 */
+	public function test_can_view() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
+		$_POST[ 'drafty_create' ] = true;
+		$_POST[ 'drafty_amount' ] = 100;
+		$_POST[ 'drafty_measure' ] = 's';
+
+		$key = $this->class->save_post_meta( $post_id );
+
+		$_GET[ 'drafty' ] = $key;
+		$this->assertTrue( $this->class->can_view( $post_id ) );
+	}
+
+	/**
+	 * @covers Drafty::can_view
+	 */
+	public function test_can_view_false_expired() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		$_POST[ 'drafty_action' ] = wp_create_nonce( 'drafty_action' . $post_id );
+		$_POST[ 'drafty_create' ] = true;
+		$_POST[ 'drafty_amount' ] = 100;
+		$_POST[ 'drafty_measure' ] = 's';
+
+		$key = $this->class->save_post_meta( $post_id );
+
+		$share = array(
+			'user_id' => 1,
+			'post_id' => $post_id,
+			'expires' => 0,
+		);
+
+		$this->class->drafty_share->set_share_by_key( $key, $share );
+
+		$_GET[ 'drafty' ] = $key;
+		$this->assertFalse( $this->class->can_view( $post_id ) );
 	}
 
 }

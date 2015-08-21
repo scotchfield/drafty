@@ -57,7 +57,9 @@ class DraftyData {
 		$shares = $this->get_shared_keys();
 
 		foreach ( $shares as $key => $share ) {
-			if ( $key == $share_key && $share[ 'post_id' ] == $post_id ) {
+			if ( $key == $share_key &&
+					$share[ 'post_id' ] == $post_id &&
+					$share[ 'expires' ] >= time() ) {
 				return true;
 			}
 		}

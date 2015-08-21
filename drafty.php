@@ -223,9 +223,7 @@ class Drafty {
 			$user_id = get_current_user_id();
 			$time = $this->calculate_seconds( intval( $_POST[ 'drafty_amount' ] ), $_POST[ 'drafty_measure' ] );
 
-			$this->drafty_share->add_share( $user_id, $post_id, $time );
-
-			return true;
+			return $this->drafty_share->add_share( $user_id, $post_id, $time );
 
 		} else if ( isset( $_POST[ 'drafty_delete' ] ) ) {
 
