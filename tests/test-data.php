@@ -9,6 +9,8 @@ class TestDraftyData extends WP_UnitTestCase {
 	}
 
 	public function tearDown() {
+		$this->class->set_shared_keys( array() );
+
 		unset( $this->class );
 
 		parent::tearDown();
