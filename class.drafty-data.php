@@ -35,6 +35,18 @@ class DraftyData {
 		return $keys;
 	}
 
+	public function get_share_by_key( $share_key ) {
+		$shares = $this->get_shared_keys();
+
+		foreach ( $shares as $key => $share ) {
+			if ( $share_key == $key ) {
+				return $share;
+			}
+		}
+
+		return false;
+	}
+
 	public function share_exists( $post_id, $share_key ) {
 		$shares = $this->get_shared_keys();
 
