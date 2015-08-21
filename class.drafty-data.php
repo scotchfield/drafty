@@ -36,15 +36,21 @@ class DraftyData {
 	}
 
 	public function get_share_by_key( $share_key ) {
-		$shares = $this->get_shared_keys();
-
-		foreach ( $shares as $key => $share ) {
+		foreach ( $this->get_shared_keys() as $key => $share ) {
 			if ( $share_key == $key ) {
 				return $share;
 			}
 		}
 
 		return false;
+	}
+
+	public function set_share_by_key( $share_key, $share ) {
+		$shares = $this->get_shared_keys();
+
+		$shares[ $share_key ] = $share;
+
+		$this->set_shared_keys( $shares );
 	}
 
 	public function share_exists( $post_id, $share_key ) {
@@ -60,16 +66,14 @@ class DraftyData {
 	}
 
 	public function add_share( $user_id, $post_id, $time ) {
-		$shares = $this->get_shared_keys();
 		$key = wp_generate_password( 8, false );
-
-		$shares[$key] = array(
+		$share = array(
 			'user_id' => $user_id,
 			'post_id' => $post_id,
 			'expires' => time() + $time,
 		);
 
-		$this->set_shared_keys( $shares );
+		$this->set_share_by_key( $key, $share );
 
 		return $key;
 	}

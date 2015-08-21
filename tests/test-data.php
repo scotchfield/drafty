@@ -54,6 +54,26 @@ class TestDraftyData extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers DraftyData::get_share_by_key
+	 */
+	public function test_get_share_by_key_false_if_not_existing() {
+		$this->assertFalse( $this->class->get_share_by_key( -1 ) );
+	}
+
+	/**
+	 * @covers DraftyData::get_share_by_key
+	 * @covers DraftyData::set_share_by_key
+	 */
+	public function test_set_and_get_share_by_key() {
+		$key = 'test_key';
+		$share = array( 'test' );
+
+		$this->class->set_share_by_key( $key, $share );
+
+		$this->assertEquals( $share, $this->class->get_share_by_key( $key ) );
+	}
+
+	/**
 	 * @covers DraftyData::add_share
 	 * @covers DraftyData::share_exists
 	 */
