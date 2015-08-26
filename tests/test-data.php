@@ -19,6 +19,7 @@ class TestDraftyData extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers DraftyData::get_post_shares
 	 * @covers DraftyData::get_visible_post_shares
 	 */
 	public function test_get_visible_post_shares_empty_invalid_post() {
@@ -35,6 +36,7 @@ class TestDraftyData extends WP_UnitTestCase {
 	/**
 	 * @covers DraftyData::add_share
 	 * @covers DraftyData::share_exists
+	 * @covers DraftyData::set_post_shares
 	 */
 	public function test_add_share_and_share_exists() {
 		$user_id = 1;
@@ -49,6 +51,7 @@ class TestDraftyData extends WP_UnitTestCase {
 	/**
 	 * @covers DraftyData::add_share
 	 * @covers DraftyData::get_visible_post_shares
+	 * @covers DraftyData::set_post_shares
 	 */
 	public function test_add_share_and_get_visible_post_shares() {
 		$user_id = 1;
@@ -67,6 +70,7 @@ class TestDraftyData extends WP_UnitTestCase {
 	/**
 	 * @covers DraftyData::add_share
 	 * @covers DraftyData::get_visible_post_shares
+	 * @covers DraftyData::set_post_shares
 	 */
 	public function test_add_share_and_get_visible_post_shares_invisible() {
 		$user_id = 1;
@@ -80,6 +84,7 @@ class TestDraftyData extends WP_UnitTestCase {
 
 	/**
 	 * @covers DraftyData::delete_share
+	 * @covers DraftyData::set_post_shares
 	 */
 	public function test_delete_share_is_false_with_non_existing_share() {
 		$this->assertFalse( $this->class->delete_share( 1, 2, 3 ) );
@@ -89,6 +94,7 @@ class TestDraftyData extends WP_UnitTestCase {
 	 * @covers DraftyData::add_share
 	 * @covers DraftyData::delete_share
 	 * @covers DraftyData::share_exists
+	 * @covers DraftyData::set_post_shares
 	 */
 	public function test_add_and_delete_share_does_not_exist() {
 		$user_id = 1;
@@ -105,6 +111,7 @@ class TestDraftyData extends WP_UnitTestCase {
 	 * @covers DraftyData::add_share
 	 * @covers DraftyData::delete_share
 	 * @covers DraftyData::share_exists
+	 * @covers DraftyData::set_post_shares
 	 */
 	public function test_add_and_delete_share_different_user_does_not_work() {
 		$user_id = 1;
