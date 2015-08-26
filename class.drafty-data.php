@@ -103,21 +103,22 @@ class DraftyData {
 	 * @return bool
 	 */
 	public function delete_share( $user_id, $post_id, $key ) {
-		$return = false;
 		$shares = $this->get_post_shares( $post_id );
 
-		if ( isset( $shares[ $key ] ) ) {
-			$user_can = in_array( $user_id, array( -1, $shares[ $key ][ 'user_id' ] ) );
-
-			if ( $user_can ) {
-				unset( $shares[ $key ] );
-				$return = true;
-			}
+		if ( ! isset( $shares[ $key ] ) ) {
+			return false;
 		}
 
-		$this->set_post_shares( $post_id, $shares );
+		$user_can = in_array( $user_id, array( -1, $shares[ $key ][ 'user_id' ] ) );
 
-		return $return;
+		if ( $user_can ) {
+			unset( $shares[ $key ] );
+			$this->set_post_shares( $post_id, $shares );
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -131,27 +132,28 @@ class DraftyData {
 	 * @return bool
 	 */
 	public function extend_share( $user_id, $post_id, $key, $time ) {
-		$return = false;
 		$shares = $this->get_post_shares( $post_id );
 
-		if ( isset( $shares[ $key ] ) ) {
-			$user_can = in_array( $user_id, array( -1, $shares[ $key ][ 'user_id' ] ) );
-
-			if ( $user_can ) {
-				$now = time();
-
-				if ( $shares[ $key ][ 'expires' ] < $now ) {
-					$shares[ $key ][ 'expires' ] = $now;
-				}
-
-				$shares[ $key ][ 'expires' ] += $time;
-				$return = true;
-			}
+		if ( ! isset( $shares[ $key ] ) ) {
+			return false;
 		}
 
-		$this->set_post_shares( $post_id, $shares );
+		$user_can = in_array( $user_id, array( -1, $shares[ $key ][ 'user_id' ] ) );
 
-		return $return;
+		if ( $user_can ) {
+			$now = time();
+
+			if ( $shares[ $key ][ 'expires' ] < $now ) {
+				$shares[ $key ][ 'expires' ] = $now;
+			}
+
+			$shares[ $key ][ 'expires' ] += $time;
+			$this->set_post_shares( $post_id, $shares );
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -163,14 +165,14 @@ class DraftyData {
 	public function set_share_expires( $post_id, $key, $expires ) {
 		$shares = $this->get_post_shares( $post_id );
 
-		if ( isset( $shares[ $key ] ) ) {
-			$shares[ $key ][ 'expires' ] = intval( $expires );
-			$this->set_post_shares( $post_id, $shares );
-
-			return true;
+		if ( ! isset( $shares[ $key ] ) ) {
+			return false;
 		}
 
-		return false;
+		$shares[ $key ][ 'expires' ] = intval( $expires );
+		$this->set_post_shares( $post_id, $shares );
+
+		return true;
 	}
 
 }
