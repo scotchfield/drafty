@@ -57,16 +57,14 @@ class DraftyData {
 	 * Return true or false if a share exists for the given post id and key.
 	 *
 	 * @param int $post_id The post id against which to check
-	 * @param string $share_key The key against which to check
+	 * @param string $key The key against which to check
 	 * @return bool
 	 */
-	public function share_exists( $post_id, $share_key ) {
+	public function share_exists( $post_id, $key ) {
 		$shares = $this->get_post_shares( $post_id );
 
-		foreach ( $shares as $key => $share ) {
-			if ( $key == $share_key && $share[ 'expires' ] >= time() ) {
-				return true;
-			}
+		if ( isset( $shares[ $key ] ) && $shares[ $key ][ 'expires' ] >= time() ) {
+			return true;
 		}
 
 		return false;
@@ -101,17 +99,17 @@ class DraftyData {
 	 * If the share does not exist, delete nothing and return false.
 	 *
 	 * @param int $user_id The user id who shared the draft, or -1 to ignore
-	 * @param string $delete_key The key to search for (and delete, if it exists)
+	 * @param string $key The key to search for (and delete, if it exists)
 	 * @return bool
 	 */
-	public function delete_share( $user_id, $post_id, $delete_key ) {
+	public function delete_share( $user_id, $post_id, $key ) {
 		$return = false;
 		$shares = $this->get_post_shares( $post_id );
 
-		foreach ( $shares as $key => $share ) {
-			$user_can = in_array( $user_id, array( -1, $share[ 'user_id' ] ) );
+		if ( isset( $shares[ $key ] ) ) {
+			$user_can = in_array( $user_id, array( -1, $shares[ $key ][ 'user_id' ] ) );
 
-			if ( $user_can && $key == $delete_key ) {
+			if ( $user_can ) {
 				unset( $shares[ $key ] );
 				$return = true;
 			}
@@ -132,14 +130,14 @@ class DraftyData {
 	 * @param int $time The duration of time to extend the draft by
 	 * @return bool
 	 */
-	public function extend_share( $user_id, $post_id, $extend_key, $time ) {
+	public function extend_share( $user_id, $post_id, $key, $time ) {
 		$return = false;
 		$shares = $this->get_post_shares( $post_id );
 
-		foreach ( $shares as $key => $share ) {
-			$user_can = in_array( $user_id, array( -1, $share[ 'user_id' ] ) );
+		if ( isset( $shares[ $key ] ) ) {
+			$user_can = in_array( $user_id, array( -1, $shares[ $key ][ 'user_id' ] ) );
 
-			if ( $user_can && $key == $extend_key ) {
+			if ( $user_can ) {
 				$now = time();
 
 				if ( $shares[ $key ][ 'expires' ] < $now ) {
