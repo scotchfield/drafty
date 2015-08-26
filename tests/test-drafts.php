@@ -100,6 +100,19 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers Drafty::template_select
+	 */
+	public function test_template_select_key() {
+		$key = 'test';
+
+		ob_start();
+		$this->class->template_select( $key );
+		$content = ob_get_clean();
+
+		$this->assertContains( 'drafty_amount' . $key, $content );
+	}
+
+	/**
 	 * @covers Drafty::save_post_meta
 	 */
 	public function test_save_post_meta_fail_bad_nonce() {
