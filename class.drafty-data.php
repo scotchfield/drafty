@@ -3,26 +3,28 @@
 class DraftyData {
 
 	/**
-	 * The domain for localization.
+	 * The metadata key used to store shares.
 	 */
-	const OPTION = 'drafty';
+	const META_KEY = 'drafty_shares';
 
 	/**
-	 * Store a collection of shared draft data.
+	 * Update a post's collection of shared draft data.
 	 *
-	 * @param array $keys An array of assigned keys and values for shared drafts
+	 * @param int $post_id The post to update
+	 * @param array $shares An array of assigned keys and values for shared drafts
 	 */
-	public function set_shared_keys( $keys ) {
-		update_option( self::OPTION, $keys );
+	private function set_post_shares( $post_id, $shares ) {
+		update_post_meta( intval( $post_id ), self::META_KEY, $shares );
 	}
 
 	/**
-	 * Retrieve the collection of shared draft data.
+	 * Retrieve the collection of shares for a post.
 	 *
+	 * @param int $post_id The post to retrieve shares from
 	 * @return array
 	 */
-	public function get_shared_keys() {
-		$shares = get_option( self::OPTION );
+	private function get_post_shares( $post_id ) {
+		$shares = get_post_meta( $post_id, self::META_KEY, true );
 
 		return is_array( $shares ) ? $shares : array();
 	}
@@ -35,53 +37,20 @@ class DraftyData {
 	 * @param int $user_id The current user id, which can be ignored using -1
 	 * @param int $post_id The post id against which to check
 	 */
-	public function get_visible_post_shared_keys( $user_id, $post_id ) {
+	public function get_visible_post_shares( $user_id, $post_id ) {
 		$keys = array();
 
-		foreach ( $this->get_shared_keys() as $key => $share ) {
+		foreach ( $this->get_post_shares( $post_id ) as $key => $share ) {
 			$user_can = in_array( $user_id, array( -1, $share[ 'user_id' ] ) );
 
 			if ( ! $user_can ) {
 				continue;
 			}
 
-			if ( $share[ 'post_id' ] == $post_id ) {
-				$keys[ $key ] = $share;
-			}
+			$keys[ $key ] = $share;
 		}
 
 		return $keys;
-	}
-
-	/**
-	 * Get a share, if it exists, using the key.
-	 *
-	 * Returns false if the share does not exist, otherwise returns the share array.
-	 *
-	 * @param string $share_key The key to search for
-	 */
-	public function get_share_by_key( $share_key ) {
-		foreach ( $this->get_shared_keys() as $key => $share ) {
-			if ( $share_key == $key ) {
-				return $share;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Set (or update) a share by key.
-	 *
-	 * @param string $share_key The key to set (or update)
-	 * @param array $share The value to use for the given key
-	 */
-	public function set_share_by_key( $share_key, $share ) {
-		$shares = $this->get_shared_keys();
-
-		$shares[ $share_key ] = $share;
-
-		$this->set_shared_keys( $shares );
 	}
 
 	/**
@@ -92,12 +61,10 @@ class DraftyData {
 	 * @return bool
 	 */
 	public function share_exists( $post_id, $share_key ) {
-		$shares = $this->get_shared_keys();
+		$shares = $this->get_post_shares( $post_id );
 
 		foreach ( $shares as $key => $share ) {
-			if ( $key == $share_key &&
-					$share[ 'post_id' ] == $post_id &&
-					$share[ 'expires' ] >= time() ) {
+			if ( $key == $share_key && $share[ 'expires' ] >= time() ) {
 				return true;
 			}
 		}
@@ -121,7 +88,9 @@ class DraftyData {
 			'expires' => time() + $time,
 		);
 
-		$this->set_share_by_key( $key, $share );
+		$shares = $this->get_post_shares( $post_id );
+		$shares[ $key ] = $share;
+		$this->set_post_shares( $post_id, $shares );
 
 		return $key;
 	}
@@ -135,9 +104,9 @@ class DraftyData {
 	 * @param string $delete_key The key to search for (and delete, if it exists)
 	 * @return bool
 	 */
-	public function delete_share( $user_id, $delete_key ) {
+	public function delete_share( $user_id, $post_id, $delete_key ) {
 		$return = false;
-		$shares = $this->get_shared_keys();
+		$shares = $this->get_post_shares( $post_id );
 
 		foreach ( $shares as $key => $share ) {
 			$user_can = in_array( $user_id, array( -1, $share[ 'user_id' ] ) );
@@ -148,7 +117,7 @@ class DraftyData {
 			}
 		}
 
-		$this->set_shared_keys( $shares );
+		$this->set_post_shares( $post_id, $shares );
 
 		return $return;
 	}
@@ -163,9 +132,9 @@ class DraftyData {
 	 * @param int $time The duration of time to extend the draft by
 	 * @return bool
 	 */
-	public function extend_share( $user_id, $extend_key, $time ) {
+	public function extend_share( $user_id, $post_id, $extend_key, $time ) {
 		$return = false;
-		$shares = $this->get_shared_keys();
+		$shares = $this->get_post_shares( $post_id );
 
 		foreach ( $shares as $key => $share ) {
 			$user_can = in_array( $user_id, array( -1, $share[ 'user_id' ] ) );
@@ -182,9 +151,28 @@ class DraftyData {
 			}
 		}
 
-		$this->set_shared_keys( $shares );
+		$this->set_post_shares( $post_id, $shares );
 
 		return $return;
+	}
+
+	/**
+	 * Retrieve the collection of shares for a post.
+	 *
+	 * @param int $post_id The post to retrieve shares from
+	 * @return array
+	 */
+	public function set_share_expires( $post_id, $key, $expires ) {
+		$shares = $this->get_post_shares( $post_id );
+
+		if ( isset( $shares[ $key ] ) ) {
+			$shares[ $key ][ 'expires' ] = intval( $expires );
+			$this->set_post_shares( $post_id, $shares );
+
+			return true;
+		}
+
+		return false;
 	}
 
 }

@@ -121,7 +121,7 @@ class Drafty {
 
 		echo wp_nonce_field( 'drafty_action' . $post->ID, 'drafty_action' );
 
-		$post_shares = $this->drafty_share->get_visible_post_shared_keys( $this->get_user_id_or_admin(), $post->ID );
+		$post_shares = $this->drafty_share->get_visible_post_shares( $this->get_user_id_or_admin(), $post->ID );
 
 		if ( ! empty( $post_shares ) ) {
 ?>
@@ -220,7 +220,7 @@ class Drafty {
 
 		} else if ( isset( $_POST[ 'drafty_delete' ] ) ) {
 
-			$result = $this->drafty_share->delete_share( $this->get_user_id_or_admin(), $_POST[ 'drafty_delete' ] );
+			$result = $this->drafty_share->delete_share( $this->get_user_id_or_admin(), $post_id, $_POST[ 'drafty_delete' ] );
 
 			if ( $result ) {
 				$this->notify = 3;
@@ -240,7 +240,7 @@ class Drafty {
 
 			$time = $this->calculate_seconds( $amount, $measure );
 
-			$result = $this->drafty_share->extend_share( $this->get_user_id_or_admin(), $key, $time );
+			$result = $this->drafty_share->extend_share( $this->get_user_id_or_admin(), $post_id, $key, $time );
 
 			if ( $result ) {
 				$this->notify = 5;

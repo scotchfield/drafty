@@ -6,12 +6,9 @@ class TestDrafty extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->class = new Drafty();
-		$this->class->drafty_share->set_shared_keys( null );
 	}
 
 	public function tearDown() {
-		delete_transient( Drafty::DOMAIN . 'notice' );
-
 		unset( $this->class );
 
 		unset( $_POST );
@@ -341,7 +338,7 @@ class TestDrafty extends WP_UnitTestCase {
 			'expires' => 0,
 		);
 
-		$this->class->drafty_share->set_share_by_key( $key, $share );
+		$this->class->drafty_share->set_share_expires( $post_id, $key, 0 );
 
 		$_GET[ 'drafty' ] = $key;
 		$this->assertFalse( $this->class->can_view( $post_id ) );
