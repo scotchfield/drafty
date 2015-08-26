@@ -183,4 +183,33 @@ class TestDraftyData extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * @covers DraftyData::add_share
+	 * @covers DraftyData::extend_share
+	 * @covers DraftyData::set_share_expires
+	 */
+	public function test_add_and_extend_share_expired_set_to_now() {
+		$user_id = 1;
+		$post_id = 2;
+		$time = 100;
+
+		$key = $this->class->add_share( $user_id, $post_id, $time );
+		$this->class->set_share_expires( $post_id, $key, 0 );
+		$this->class->extend_share( $user_id, $post_id, $key, $time );
+
+		$shares_extend = $this->class->get_visible_post_shares( $user_id, $post_id );
+
+		$this->assertGreaterThan(
+			time(),
+			$shares_extend[ $key ][ 'expires' ]
+		);
+	}
+
+	/**
+	 * @covers DraftyData::set_share_expires
+	 */
+	public function test_set_share_expires_false_bad_share() {
+		$this->assertFalse( $this->class->set_share_expires( -1, 'bad_key', 0 ) );
+	}
+
 }

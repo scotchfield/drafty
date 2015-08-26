@@ -142,8 +142,8 @@ class DraftyData {
 			if ( $user_can && $key == $extend_key ) {
 				$now = time();
 
-				if ( $share[ 'expires' ] < $now ) {
-					$share[ 'expires' ] = $now;
+				if ( $shares[ $key ][ 'expires' ] < $now ) {
+					$shares[ $key ][ 'expires' ] = $now;
 				}
 
 				$shares[ $key ][ 'expires' ] += $time;
