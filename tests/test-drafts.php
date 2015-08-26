@@ -236,6 +236,39 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers Drafty::admin_notices
+	 */
+	public function test_admin_notices_false_no_get() {
+		$this->assertFalse( $this->class->admin_notices() );
+	}
+
+	/**
+	 * @covers Drafty::admin_notices
+	 */
+	public function test_admin_notices_false_invalid_get() {
+		$_GET[ 'drafty_notify' ] = -1;
+
+		$this->assertFalse( $this->class->admin_notices() );
+
+		unset( $_GET[ 'drafty_notify' ] );
+	}
+
+	/**
+	 * @covers Drafty::admin_notices
+	 */
+	public function test_admin_notices_true_created() {
+		$_GET[ 'drafty_notify' ] = 1;
+
+		ob_start();
+		$this->assertTrue( $this->class->admin_notices() );
+		$content = ob_get_clean();
+
+		$this->assertContains( 'was created', $content );
+
+		unset( $_GET[ 'drafty_notify' ] );
+	}
+
+	/**
 	 * @covers Drafty::calculate_seconds
 	 */
 	public function test_calculate_seconds() {

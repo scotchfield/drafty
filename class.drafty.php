@@ -257,7 +257,7 @@ class Drafty {
 
 	public function admin_notices() {
 		if ( ! isset( $_GET[ 'drafty_notify' ] ) ) {
-			return;
+			return false;
 		}
 
 		$messages = array(
@@ -275,7 +275,11 @@ class Drafty {
 		if ( isset( $messages[ $notice ] ) ) {
 			$message = $messages[ $notice ];
 			echo '<div class="' . esc_attr( $message[ 0 ] ) . '">' . esc_html__( $message[ 1 ] ) . '</div>';
+
+			return true;
 		}
+
+		return false;
 	}
 
 	public function calculate_seconds( $amount, $measure ) {
