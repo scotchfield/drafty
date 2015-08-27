@@ -49,14 +49,6 @@ class Drafty {
 	}
 
 	public function add_admin_pages() {
-		add_menu_page(
-			esc_html__( 'Drafty', self::DOMAIN ),
-			esc_html__( 'Drafty', self::DOMAIN ),
-			'edit_posts',
-			self::DOMAIN,
-			array( $this, 'admin_page' )
-		);
-
 		add_action( 'admin_print_styles-post.php', array( $this, 'admin_page_styles' ) );
 		add_action( 'admin_print_scripts-post.php', array( $this, 'admin_page_scripts' ) );
 	}
@@ -339,12 +331,6 @@ class Drafty {
 		}
 
 		return $posts;
-	}
-
-	public function admin_page() {
-?>
-<h1><?php _e( 'Drafty', self::DOMAIN ); ?></h1>
-<?php
 	}
 
 }

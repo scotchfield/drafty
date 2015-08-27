@@ -50,7 +50,12 @@ class TestDrafty extends WP_UnitTestCase {
 	public function test_add_admin_pages() {
 		$this->class->add_admin_pages();
 
-		$this->assertArrayHasKey( Drafty::DOMAIN, $GLOBALS[ 'admin_page_hooks' ] );
+		$this->assertGreaterThan(
+			0, has_action( 'admin_print_styles-post.php', array( $this->class, 'admin_page_styles' ) )
+		);
+		$this->assertGreaterThan(
+			0, has_action( 'admin_print_scripts-post.php', array( $this->class, 'admin_page_scripts' ) )
+		);
 	}
 
 	/**
