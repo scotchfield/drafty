@@ -218,6 +218,21 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers Drafty::generate_meta_box
+	 */
+	public function test_generate_meta_box_simple_shared_draft() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+
+		$key = $this->class->drafty_share->add_share( get_current_user_id(), $post_id, 100 );
+
+		ob_start();
+		$this->assertNull( $this->class->generate_meta_box( get_post( $post_id ) ) );
+		$content = ob_get_clean();
+
+		$this->assertContains( $key, $content );
+	}
+
+	/**
 	 * @covers Drafty::save_post_meta
 	 */
 	public function test_save_post_meta_create_bad_post() {

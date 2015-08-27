@@ -150,7 +150,7 @@ class Drafty {
 		<td><?php echo esc_html( $this->get_time_difference_string( $share[ 'expires' ] ) ); ?></td>
 		<td>
 			<div id="extend-form-<?php echo esc_attr( $key ); ?>" class="extend-form">
-				<input type="hidden" name="key" value="<?php echo esc_attr( $share[ 'key' ] ); ?>" />
+				<input type="hidden" name="key" value="<?php echo esc_attr( $key ); ?>" />
 				<button type="submit" name="drafty_extend" value="<?php echo esc_attr( $key ); ?>">
 					<?php esc_html_e( 'Extend', self::DOMAIN ); ?>
 				</button>
