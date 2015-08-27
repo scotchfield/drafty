@@ -502,4 +502,22 @@ class TestDrafty extends WP_UnitTestCase {
 		$this->assertFalse( $this->class->can_view( $post_id ) );
 	}
 
+	/**
+	 * @covers Drafty::posts_results
+	 */
+	public function test_posts_results_empty() {
+		$posts = array();
+
+		$this->assertEquals( $posts, $this->class->posts_results( $posts ) );
+	}
+
+	/**
+	 * @covers Drafty::the_posts
+	 */
+	public function test_the_posts_empty() {
+		$posts = array();
+
+		$this->assertEquals( $posts, $this->class->the_posts( $posts ) );
+	}
+
 }
