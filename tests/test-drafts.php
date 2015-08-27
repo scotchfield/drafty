@@ -174,6 +174,32 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers Drafty::get_user_id_or_admin
+	 */
+	public function test_get_user_id_or_admin_with_administrator() {
+		$user = new WP_User( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
+		$old_user_id = get_current_user_id();
+		wp_set_current_user( $user->ID );
+
+		$this->assertEquals( -1, $this->class->get_user_id_or_admin() );
+
+		wp_set_current_user( $old_user_id );
+	}
+
+	/**
+	 * @covers Drafty::get_user_id_or_admin
+	 */
+	public function test_get_user_id_or_admin_with_subscriber() {
+		$user = new WP_User( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
+		$old_user_id = get_current_user_id();
+		wp_set_current_user( $user->ID );
+
+		$this->assertEquals( $user->ID, $this->class->get_user_id_or_admin() );
+
+		wp_set_current_user( $old_user_id );
+	}
+
+	/**
 	 * @covers Drafty::generate_meta_box
 	 */
 	public function test_generate_meta_box_empty() {
