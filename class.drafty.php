@@ -8,6 +8,11 @@ class Drafty {
 	const DOMAIN = 'drafty';
 
 	/**
+	 * The URL key for notifying a user about a status update.
+	 */
+	const NOTIFY = 'drafty_notify';
+
+	/**
 	 * Retain the shared posts stored in the option.
 	 */
 	private $shared_posts = array();
@@ -72,7 +77,7 @@ class Drafty {
 
 	public function notify_redirect( $location, $post_id ) {
 		if ( isset( $this->notify ) ) {
-			return add_query_arg( 'drafty_notify', $this->notify, $location );
+			return add_query_arg( self::NOTIFY, $this->notify, $location );
 		}
 
 		return $location;
@@ -256,7 +261,7 @@ class Drafty {
 	}
 
 	public function admin_notices() {
-		if ( ! isset( $_GET[ 'drafty_notify' ] ) ) {
+		if ( ! isset( $_GET[ self::NOTIFY ] ) ) {
 			return false;
 		}
 
@@ -270,7 +275,7 @@ class Drafty {
 			7 => array( 'error', __( 'Could not update the Drafty settings!', self::DOMAIN ) ),
 		);
 
-		$notice = intval( $_GET[ 'drafty_notify' ] );
+		$notice = intval( $_GET[ self::NOTIFY ] );
 
 		if ( isset( $messages[ $notice ] ) ) {
 			$message = $messages[ $notice ];

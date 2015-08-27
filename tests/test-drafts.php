@@ -76,6 +76,29 @@ class TestDrafty extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @covers Drafty::notify_redirect
+	 */
+	public function test_notify_redirect_unchanged() {
+		$url = 'http://example.com';
+
+		$this->assertEquals( $url, $this->class->notify_redirect( $url, 1 ) );
+	}
+
+	/**
+	 * @covers Drafty::notify_redirect
+	 */
+	public function test_notify_redirect_set_notify() {
+		$url = 'http://example.com';
+		$notify = 1;
+
+		$this->class->notify = $notify;
+		$this->assertEquals(
+			$url . '?' . Drafty::NOTIFY . '=' . $notify,
+			$this->class->notify_redirect( $url, 1 )
+		);
+	}
+
+	/**
 	 * @covers Drafty::can_post_status_share
 	 */
 	public function test_can_post_status_share() {
