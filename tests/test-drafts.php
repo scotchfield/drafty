@@ -525,4 +525,22 @@ class TestDrafty extends WP_UnitTestCase {
 		$this->assertEquals( $posts, $this->class->the_posts( $posts ) );
 	}
 
+	/**
+	 * @covers Drafty::posts_results
+	 * @covers Drafty::the_posts
+	 */
+	public function test_posts_show_shared() {
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+		$key = $this->class->drafty_share->add_share( get_current_user_id(), $post_id, 100 );
+		$_GET[ 'drafty' ] = $key;
+
+		$posts = array( get_post( $post_id ) );
+
+		$this->class->posts_results( $posts );
+
+		$this->assertEquals( $posts, $this->class->the_posts( array() ) );
+
+		unset( $_GET[ 'drafty' ] );
+	}
+
 }
