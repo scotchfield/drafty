@@ -236,8 +236,8 @@ class Drafty {
 			return $result;
 
 		} else if ( isset( $_POST[ 'drafty_extend' ] ) &&
-				isset( $_POST[ 'drafty_amount' ] ) &&
-				isset( $_POST[ 'drafty_measure' ] ) ) {
+				isset( $_POST[ 'drafty_amount' . $_POST[ 'drafty_extend' ] ] ) &&
+				isset( $_POST[ 'drafty_measure' . $_POST[ 'drafty_extend' ] ] ) ) {
 
 			$key = $_POST[ 'drafty_extend' ];
 			$amount = $_POST[ 'drafty_amount' . $key ];
